@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <title>felixx.cc - underwater photography</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{.Description}}">
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.0/css/pico.min.css">
+    <script type="text/javascript">
+
+        window.onload = () => {
+            document.body.addEventListener('click', event => {
+
+                if (event.target.nodeName.toLocaleLowerCase() === "img") {
+                    event.preventDefault()
+                    return
+                }
+                window.location.href = "/"
+            })
+        }
+
+    </script>
+    <style>
+        .flex-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .flex-img {
+            padding-left: 7%;
+            padding-right: 5%;
+            padding-top: 2%;
+            flex: 2 2 66%;
+        }
+
+        .flex-description {
+            padding-right: 5%;
+            flex: 1 1 34%;
+        }
+
+        p {
+            white-space: pre-wrap;
+        }
+
+        footer {
+            width: 100%;
+            height: 30px;
+            text-align: center;
+            color: #cacaca;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="flex-container">
+        <div class="flex-img">
+            <img src="/images/{{.Name}}?size=medium" width={{.WidthMedium}} height={{.HeightMedium}} alt={{.Name}}>
+        </div>
+        <div class="flex-description">
+            <p>{{.Description}}</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>All images &copy; 2022 Adrien Petel - All right reserved</p>
+    </footer>
+
+</body>
+
+</html>

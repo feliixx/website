@@ -1,0 +1,42 @@
+{
+  "https": {
+    "enabled": false,
+    "fullchain": "",
+    "privkey": ""
+  },
+  // list of users than can manage the images
+  "users": {
+    "username": "password"
+  },
+  // images are resized with 'convert' from ImageMagick, v6.9+
+  "images": {
+    "local_dir": "/home/adrien/Desktop/images",
+    "convert_small_opts": "-resize 660x440 -quality 85 -strip -sampling-factor 4:2:0 -interlace JPEG -colorspace sRGB -define jpeg:dec-method=float",
+    "convert_medium_opts": "-resize 1320x880 -quality 100 -strip -sampling-factor 4:2:0 -interlace JPEG -colorspace sRGB -define jpeg:dec-method=float"
+  },
+  "google_drive": {
+    "enabled": false,
+    "dir": "website",
+    "sync_on_startup": false,
+    // see https://developers.google.com/workspace/guides/create-credentials to get credentials
+    "credentials": {
+      "web": {
+        "client_id": "",
+        "project_id": "",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_secret": "",
+        "redirect_uris": [],
+        "javascript_origins": []
+      }
+    },
+    // see https://developers.google.com/drive/api/quickstart/go to get a valid token 
+    "token": {
+      "access_token": "",
+      "token_type": "",
+      "refresh_token": "",
+      "expiry": ""
+    }
+  }
+}

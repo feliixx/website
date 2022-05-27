@@ -1,0 +1,67 @@
+name: Deploy on production
+
+on: 
+  push:
+    branches:
+      - "main" 
+
+env: 
+  # name of the binary, the service and the user running the 
+  # service 
+  APP_NAME: website
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-20.04
+
+    environment: production
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.18'
+
+    # build binary without debug info to reduce its size
+    - name: build binary 
+      run: go build -ldflags "-w -s"
+
+    - name: Register SSH key
+      continue-on-error: true
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_PRODUCTION }}
+
+    - name: Update known host
+      run: ssh-keyscan -H ${{ secrets.HOST_PRODUCTION }} > /home/runner/.ssh/known_hosts
+
+    # stop the service, drop mongodb databases, and copy the new binary and upload the new binary
+    # before restarting the service, we need to allow binary to listen on protected 
+    # port 80 & 443 with setcap
+    - name: Deploy binary on server
+      run: |
+        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} sudo systemctl stop $APP_NAME
+        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} mv /home/$APP_NAME/$APP_NAME /home/$APP_NAME/${APP_NAME}_old || true
+        scp $APP_NAME $APP_NAME@${{ secrets.HOST_PRODUCTION }}:/home/$APP_NAME
+        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} sudo setcap CAP_NET_BIND_SERVICE=+ep $APP_NAME
+        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} sudo systemctl restart $APP_NAME
+    # ping the server until we're sure it's UP
+    # script is an adaptation of this question: https://unix.stackexchange.com/questions/82598/
+    - name: Check new instance has started correctly
+      id: ping_new_instance
+      run: for i in 5 10 20 30 30; do sleep $i; wget -nv --no-check-certificate -O- https://${{ secrets.HOST_PRODUCTION }}/health  | grep -q '{"Status":"UP"' && s=0 && break || s=$?; done; (exit $s)
+    
+    - name: Print first logs if deploy failed
+      if: failure() && steps.ping_new_instance.outcome == 'failure'
+      run: ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} journalctl -u $APP_NAME | tail -100
+    
+    - name: Rollback previous version if deploy failed
+      if: failure() && steps.ping_new_instance.outcome == 'failure'
+      run: |
+        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} sudo systemctl stop $APP_NAME
+        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} mv /home/$APP_NAME/${APP_NAME}_old /home/$APP_NAME/$APP_NAME || true
+        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} sudo systemctl restart $APP_NAME

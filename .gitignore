@@ -1,0 +1,7 @@
+website
+*.jpg
+credentials.json
+token.json
+website.db
+small/
+medium/

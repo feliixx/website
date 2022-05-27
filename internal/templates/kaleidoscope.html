@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Online kaleidoscope</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Create an animated kaleidoscope from any image from the internet">
+    <script type="text/javascript">
+
+        var Kaleidoscope = function (image) {
+
+            const radius = (screen.height / 2) - 100
+
+            const canvas = document.getElementById('kaleidoscope')
+            canvas.width = canvas.height = radius * 2
+
+            const context = canvas.getContext('2d')
+            context.fillStyle = context.createPattern(image, 'repeat')
+
+            const slices = 12
+            const zoom = 1
+            const ease = 0.1
+            const scale = zoom * (radius / Math.min(image.width, image.height))
+            const step = (Math.PI * 2) / slices
+
+            let offsetRotation = 0
+            let offsetScale = 1
+            let offsetX = 0
+            let offsetY = 0
+            let Xmax = canvas.offsetHeight
+            let Ymax = canvas.offsetWidth
+            let x = Xmax / 2
+            let y = Ymax / 2
+            let forwardX = true
+            let forwardY = true
+
+
+            function draw() {
+
+                let dx = x / Xmax
+                let dy = y / Ymax
+                let hx = dx - 0.5
+                let hy = dy - 0.5
+                let tx = hx * radius * -2
+                let ty = hy * radius * 2
+                let delta = Math.atan2(hy, hx) - offsetRotation
+                let theta = Math.atan2(Math.sin(delta), Math.cos(delta))
+
+                offsetX += (tx - offsetX) * ease
+                offsetY += (ty - offsetY) * ease
+                offsetRotation += (theta - offsetRotation) * ease
+
+                for (var i = 0; i <= slices; i++) {
+                    context.save()
+                    context.translate(radius, radius)
+                    context.rotate(i * step)
+                    context.beginPath()
+                    context.moveTo(-0.5, -0.5)
+                    context.arc(0, 0, radius, step * -0.51, step * 0.51)
+                    context.lineTo(0.5, 0.5)
+                    context.closePath()
+                    context.rotate(Math.PI / 2)
+                    context.scale(scale, scale)
+                    context.scale([-1, 1][i % 2], 1)
+                    context.translate(offsetX - (image.width / 2), offsetY)
+                    context.rotate(offsetRotation)
+                    context.scale(offsetScale, offsetScale)
+                    context.fill()
+                    context.restore()
+                }
+
+                forwardX === true ? x += 2 : x -= 2
+                forwardY === true ? y += 2 : y -= 2
+
+                const rnd = Math.random()
+                if (rnd > 0.99) {
+                    forwardX = !forwardX
+                }
+                if (rnd < 0.01) {
+                    forwardY = !forwardY
+                }
+            }
+
+
+            let interval
+
+            function start() {
+                interval = window.setInterval(draw, 50)
+            }
+
+            function stop() {
+                clearInterval(interval)
+            }
+
+            return {
+                start: start,
+                stop: stop,
+            }
+
+        }
+
+        window.onload = () => {
+
+            const image = document.getElementById('img')
+
+            let kal = new Kaleidoscope(image)
+            kal.start()
+
+            image.onload = () => {
+                kal = new Kaleidoscope(image)
+                kal.start()
+            }
+
+            const input = document.getElementById("imageUrl")
+            input.addEventListener("change", () => {
+                kal.stop()
+                image.src = input.value
+            })
+        }
+
+    </script>
+    <style>
+        body {
+            background-color: #11191f;
+        }
+
+        input {
+            width: 500px;
+            margin-top: 20px;
+        }
+
+        div {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <canvas id="kaleidoscope"></canvas>
+        <input type="text" placeholder="Image URL " id="imageUrl">
+        <img id="img" src="{{.}}" style="display: none;">
+    </div>
+</body>
+
+</html>

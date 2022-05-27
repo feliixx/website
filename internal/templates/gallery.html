@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <title>felixx.cc - underwater photography</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+        content="Some pictures I took while freediving in New Caledonia and French Polynesia - &copy; Adrien Petel">
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.0/css/pico.min.css">
+</head>
+
+<style>
+    body {
+        text-align: center;
+    }
+
+    img {
+        margin: 10px;
+        cursor: pointer;
+    }
+
+    footer {
+        width: 100%;
+        height: 30px;
+        text-align: center;
+        color: #cacaca;
+    }
+</style>
+
+<body>
+    <div>
+        <nav>
+            <ul></ul>
+            <ul>
+                {{ $selected := .SelectedTag}}
+                {{ range $tag := .Tags }}
+                <li><a href="/?tag={{$tag}}" {{ if ne $tag $selected }} class="secondary" {{end}}>{{$tag}}</a></li>
+                {{end}}
+                <li><a href="/" {{ if ne ( len .SelectedTag) 0 }} class="secondary" {{end}}>All</a></li>
+            </ul>
+            <ul></ul>
+        </nav>
+    </div>
+
+    {{ range $img := .Images }}
+    <img src="/images/{{$img.Name}}" width={{$img.WidthSmall}} height={{$img.HeightSmall}} alt="{{$img.Name}}"
+        onclick="window.location.href='/detail?name={{$img.Name}}'" title={{$img.Description}}>
+    {{end}}
+
+    <footer>
+        <p>All images &copy; 2022 Adrien Petel - All right reserved</p>
+    </footer>
+
+</body>
+
+</html>

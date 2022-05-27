@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <title>felixx.cc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Manage content">
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.0/css/pico.min.css">
+    <script type="text/javascript">
+
+        window.addEventListener("load", () => {
+            document.getElementById("img_chooser").addEventListener("change", () => {
+                if (this.files && this.files[0]) {
+                    const img = document.getElementById("img_preview")
+                    img.onload = () => {
+                        URL.revokeObjectURL(img.src)
+                    }
+                    img.src = URL.createObjectURL(this.files[0])
+                }
+            })
+
+            document.getElementById("upload_button").addEventListener("click", () => {
+                imgChooser = document.getElementById("img_chooser")
+                if (imgChooser.files && imgChooser.files[0]) {
+                    uploadImage(imgChooser.files[0])
+                }
+            })
+        })
+
+        function uploadImage(file) {
+
+            const select = document.getElementById("orientation_select")
+            const orientation = select.options[select.selectedIndex].text
+
+            const formData = new FormData()
+            formData.append("image", file)
+            formData.append("orientation", orientation)
+
+            fetch("/images/create", { method: "POST", body: formData })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = "/manage"
+                    } else {
+                        response.text().then(text => {
+                            alert(`create image failed: Error ${response.status} (${response.statusText}): ${text}`)
+                        })
+                    }
+                })
+        }
+
+        function updateImage() {
+
+            const formData = new FormData()
+            formData.append("orientation", document.getElementById("paysage").checked ? "paysage" : "portrait")
+            formData.append("show", document.getElementById("show").checked ? "true" : "false")
+            formData.append("tags", document.getElementById("tags").value)
+            formData.append("description", document.getElementById("description").value)
+
+            const name = document.getElementById("name").value
+
+            fetch(`/images/${name}`, { method: "PUT", body: formData })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = "/manage"
+                    } else {
+                        response.text().then(text => {
+                            alert(`update image failed: Error ${response.status} (${response.statusText}): ${text}`)
+                        })
+                    }
+                })
+        }
+
+        function deleteImage(event) {
+
+            const name = event.target.getAttribute("data-target")
+
+            if (!window.confirm(`Delete image '${name}' ?`)) {
+                return
+            }
+
+            fetch(`/images/${name}`, { method: "DELETE" })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = "/manage"
+                    } else {
+                        response.text().then(text => {
+                            alert(`delete image failed: Error ${response.status} (${response.statusText}): ${text}`)
+                        })
+                    }
+                })
+        }
+
+        const isOpenClass = "modal-is-open"
+        const openingClass = "modal-is-opening"
+        const closingClass = "modal-is-closing"
+        const animationDuration = 400 // ms
+
+        function toggleEditModal(event) {
+            event.preventDefault()
+
+            const modal = document.getElementById("modal-edit")
+            if (modal.hasAttribute("open") && modal.getAttribute("open") != "false") {
+                closeEditModal(modal)
+            } else {
+                openEditModal(modal, event.target.parentElement.parentElement)
+            }
+        }
+
+        function openEditModal(modal, row) {
+
+            fillModalFromRow(row)
+
+            if (document.body.scrollHeight > screen.height) {
+                document.documentElement.style.setProperty("--scrollbar-width", getScrollbarWidth() + "px")
+            }
+            document.documentElement.classList.add(isOpenClass, openingClass)
+            setTimeout(() => {
+                document.documentElement.classList.remove(openingClass)
+            }, animationDuration)
+            modal.setAttribute("open", true)
+        }
+
+        function fillModalFromRow(row) {
+            document.getElementById("name").value = getVal(row, "name")
+            document.getElementById("show").checked = getVal(row, "show") != ""
+            document.getElementById("paysage").checked = getVal(row, "orientation") == "paysage"
+            document.getElementById("portrait").checked = getVal(row, "orientation") == "portrait"
+            document.getElementById("description").value = getVal(row, "description")
+            document.getElementById("tags").value = getVal(row, "tags")
+        }
+
+        function getVal(elem, className) {
+            return elem.getElementsByClassName(className)[0].textContent
+        }
+
+        function closeEditModal(modal) {
+            document.documentElement.classList.add(closingClass)
+            setTimeout(() => {
+                document.documentElement.classList.remove(closingClass, isOpenClass)
+                document.documentElement.style.removeProperty("--scrollbar-width")
+                modal.removeAttribute("open")
+            }, animationDuration)
+        }
+
+        function getScrollbarWidth() {
+
+            const outer = document.createElement("div")
+            outer.style.visibility = "hidden"
+            outer.style.overflow = "scroll"
+            outer.style.msOverflowStyle = "scrollbar"
+            document.body.appendChild(outer)
+
+            const inner = document.createElement("div")
+            outer.appendChild(inner)
+
+            const scrollbarWidth = (outer.offsetWidth - inner.offsetWidth)
+
+            outer.parentNode.removeChild(outer)
+
+            return scrollbarWidth
+        }
+
+    </script>
+</head>
+
+<body>
+    <main class="container-fluid">
+        <div class="container">
+            <h3>Upload an new image</h3>
+            <div class="grid">
+                <input id="img_chooser" type="file" width="300px" accept=".jpg, .jpeg" />
+                <select id="orientation_select">
+                    <option>portrait</option>
+                    <option>paysage</option>
+                </select>
+                <button id="upload_button">upload image</button>
+            </div>
+            <small>Only [ .jpg | .jpeg ] files are allowed</small>
+            <img id="img_preview" width="200px">
+        </div>
+        <section></section>
+        <h3>Image list</h3>
+        <table>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Show</th>
+                <th>Orientation</th>
+                <th>Description</th>
+                <th>Tags</th>
+                <th></th>
+                <th></th>
+            </tr>
+
+            {{ range $img := . }}
+            <tr>
+                <td><img src="/images/{{$img.Name}}" width="75px" height="75px"></td>
+                <td class="name">{{$img.Name}}</td>
+                <td>{{$img.CreationDate.Format "02 Jan 2006"}}</td>
+                <td class="show">{{ if $img.Show }}&#10004;{{end}}</td>
+                <td class="orientation">{{$img.Orientation}}</td>
+                <td class="description">{{$img.Description}}</td>
+                <td class="tags">{{$img.Tags}}</td>
+                <td>
+                    <button onClick="toggleEditModal(event)">Edit</button>
+                </td>
+                <td>
+                    <button onClick="deleteImage(event)" data-target={{$img.Name}} class="secondary">Delete</button>
+                </td>
+            </tr>
+            {{end}}
+        </table>
+    </main>
+
+    <dialog id="modal-edit">
+        <article>
+            <h3>Edit image info</h3>
+            <form>
+                <label for="name">Name</label>
+                <input type="text" id="name" required disabled>
+                <div class=grid>
+                    <fieldset>
+                        <legend>Orientation</legend>
+                        <label for="portrait">
+                            <input type="radio" name="orientation" id="portrait" value="portrait">
+                            Portrait
+                        </label>
+                        <label for="paysage">
+                            <input type="radio" name="orientation" id="paysage" value="paysage">
+                            Paysage
+                        </label>
+                    </fieldset>
+                    <label for="show">
+                        <input type="checkbox" id="show" role="switch">
+                        Show in gallery
+                    </label>
+                </div>
+                <label for="description">Description</label>
+                <textarea id="description" rows=5 cols=60></textarea>
+                <label for="tags">Tags</label>
+                <input type="text" id="tags">
+                <small>list of tags separated by a comma ( <strong>,</strong> )</small>
+            </form>
+            <footer>
+                <a href="#cancel" role="button" class="secondary" onClick="toggleEditModal(event)">Cancel</a>
+                <a href="#save" role="button" onClick="updateImage()">Save</a>
+            </footer>
+        </article>
+    </dialog>
+
+</body>
+
+</html>
