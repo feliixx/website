@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"
 
 	"golang.org/x/exp/slices"
 	"golang.org/x/oauth2"
@@ -16,9 +15,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-const syncInterval = 1 * time.Hour
-
-func (s *ImageStorage) syncWithGoogleDrive() error {
+func (s *ImageStorage) backupToGoogleDrive() error {
 
 	if !s.needSync {
 		return nil
@@ -64,7 +61,7 @@ func (s *ImageStorage) syncWithGoogleDrive() error {
 			log.Printf("file %s uploaded to drive", name)
 		}
 	}
-	return nil
+	return s.driveInfo.uploadDbBackup()
 }
 
 func uploadImageToDrive(service *drive.Service, name, baseDir, driveParentID string) error {
@@ -136,4 +133,35 @@ func (g *GoogleDriveInfo) getDriveService() (*drive.Service, error) {
 		context.Background(),
 		option.WithHTTPClient(client),
 	)
+}
+
+func (g *GoogleDriveInfo) uploadDbBackup() error {
+
+	driveService, err := g.getDriveService()
+	if err != nil {
+		return err
+	}
+
+	driveParentID, err := getDriveDirID(driveService, g.dir)
+	if err != nil {
+		return err
+	}
+
+	content, err := os.Open(dbFile)
+	if err != nil {
+		return err
+	}
+
+	fileList, _ := driveService.Files.List().Q(fmt.Sprintf("name = '%v'", dbFile)).Do()
+	for _, f := range fileList.Files {
+		driveService.Files.Update(f.Id, &drive.File{Trashed: true}).Do()
+	}
+
+	f := &drive.File{
+		MimeType: "application/x-sqlite3",
+		Name:     dbFile,
+		Parents:  []string{driveParentID},
+	}
+	_, err = driveService.Files.Create(f).Media(content).Do()
+	return err
 }

@@ -16,6 +16,11 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	dbFile         = "website.db"
+	backupInterval = 24 * time.Hour
+)
+
 type ImageStorage struct {
 	sync.Mutex
 
@@ -36,7 +41,7 @@ type ImageStorage struct {
 
 func NewImageStorage(imgDir string, convertSmallOpts, convertMediumOpts []string, driveInfo *GoogleDriveInfo) (*ImageStorage, error) {
 
-	db, err := gorm.Open(sqlite.Open("website.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(dbFile), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
@@ -68,10 +73,11 @@ func NewImageStorage(imgDir string, convertSmallOpts, convertMediumOpts []string
 		}
 
 		go func(s *ImageStorage) {
-			for range time.Tick(syncInterval) {
-				err := s.syncWithGoogleDrive()
+
+			for range time.Tick(backupInterval) {
+				err := s.backupToGoogleDrive()
 				if err != nil {
-					log.Println(err)
+					log.Printf("fail to backup to drive: %v", err)
 				}
 			}
 		}(s)
