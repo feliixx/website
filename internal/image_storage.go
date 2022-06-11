@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"net/http"
@@ -57,14 +58,8 @@ func NewImageStorage(imgDir string, convertSmallOpts, convertMediumOpts []string
 		driveInfo:         driveInfo,
 	}
 
-	for _, dir := range []string{s.smallDir, s.mediumDir} {
-		_, err = os.Stat(dir)
-		if os.IsNotExist(err) {
-			os.Mkdir(dir, 0755)
-		}
-	}
-
 	s.loadImages()
+	s.initResizedDir()
 
 	if driveInfo != nil {
 
@@ -103,6 +98,36 @@ func (s *ImageStorage) loadImages() {
 		}
 	}
 	s.tags = maps.Keys(tags)
+}
+
+func (s *ImageStorage) initResizedDir() {
+
+	for _, dir := range []string{s.smallDir, s.mediumDir} {
+		_, err := os.Stat(dir)
+		if os.IsNotExist(err) {
+			os.Mkdir(dir, 0755)
+		}
+	}
+
+	if len(s.images) == 0 {
+		return
+	}
+
+	needRegenerate := false
+	for _, dir := range []string{s.smallDir, s.mediumDir} {
+		d, _ := os.Open(dir)
+
+		_, err := d.Readdirnames(1)
+		if err == io.EOF {
+			needRegenerate = true
+		}
+	}
+
+	if needRegenerate {
+		for _, img := range s.images {
+			s.generateSmallerVersions(&img)
+		}
+	}
 }
 
 func (s *ImageStorage) galleryHandler(w http.ResponseWriter, r *http.Request) {

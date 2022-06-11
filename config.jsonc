@@ -10,7 +10,7 @@
   },
   // images are resized with 'convert' from ImageMagick, v6.9+
   "images": {
-    "local_dir": "/home/adrien/Desktop/images",
+    "local_dir": "images",
     "convert_small_opts": "-resize 660x440 -quality 85 -strip -sampling-factor 4:2:0 -interlace JPEG -colorspace sRGB -define jpeg:dec-method=float",
     "convert_medium_opts": "-resize 1320x880 -quality 100 -strip -sampling-factor 4:2:0 -interlace JPEG -colorspace sRGB -define jpeg:dec-method=float"
   },
