@@ -34,10 +34,17 @@
 
         .flex-img {
             height: 100%;
-            padding-left: 7%;
             padding-right: 5%;
             padding-top: 2%;
             flex: 2 2 66%;
+        }
+
+        .flex-img-portrait {
+            padding-left: 20%;
+        }
+
+        .flex-img-paysage {
+            padding-left: 7%;
         }
 
         .flex-description {
@@ -60,7 +67,6 @@
             width: 100%;
             height: 30px;
             text-align: center;
-            color: #cacaca;
         }
     </style>
 </head>
@@ -68,7 +74,7 @@
 <body>
 
     <div class="flex-container">
-        <div class="flex-img">
+        <div class="flex-img flex-img-{{.Orientation}}">
             <img src="/images/{{.Name}}?size=medium" alt={{.Name}}>
         </div>
         <div class="flex-description">
