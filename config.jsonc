@@ -17,7 +17,6 @@
   "google_drive": {
     "enabled": false,
     "dir": "website",
-    "sync_on_startup": false,
     // see https://developers.google.com/workspace/guides/create-credentials to get credentials
     "credentials": {
       "web": {

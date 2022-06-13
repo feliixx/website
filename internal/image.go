@@ -104,8 +104,6 @@ func (s *ImageStorage) createImageHandler(w http.ResponseWriter, r *http.Request
 	s.db.Create(&img)
 	s.loadImages()
 
-	s.needSync = true
-
 	w.Write([]byte("ok"))
 }
 

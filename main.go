@@ -72,7 +72,6 @@ func loadGoogleDriveInfo() *internal.GoogleDriveInfo {
 	}
 
 	return internal.NewGoogleDriveInfo(
-		boa.GetBool("google_drive.sync_on_startup"),
 		boa.GetString("google_drive.dir"),
 		boa.GetMap("google_drive.token"),
 		boa.GetMap("google_drive.credentials"),

@@ -108,7 +108,7 @@ type GoogleDriveInfo struct {
 	config        *oauth2.Config
 }
 
-func NewGoogleDriveInfo(syncOnStartup bool, dir string, token, credentials any) *GoogleDriveInfo {
+func NewGoogleDriveInfo(dir string, token, credentials any) *GoogleDriveInfo {
 
 	tb, _ := json.Marshal(token)
 	t := &oauth2.Token{}
@@ -118,10 +118,9 @@ func NewGoogleDriveInfo(syncOnStartup bool, dir string, token, credentials any) 
 	config, _ := google.ConfigFromJSON(b, drive.DriveFileScope)
 
 	return &GoogleDriveInfo{
-		syncOnStartup: syncOnStartup,
-		dir:           dir,
-		token:         t,
-		config:        config,
+		dir:    dir,
+		token:  t,
+		config: config,
 	}
 }
 

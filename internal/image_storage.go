@@ -63,10 +63,6 @@ func NewImageStorage(imgDir string, convertSmallOpts, convertMediumOpts []string
 
 	if driveInfo != nil {
 
-		if driveInfo.syncOnStartup {
-			s.needSync = true
-		}
-
 		go func(s *ImageStorage) {
 
 			for range time.Tick(backupInterval) {
@@ -77,6 +73,7 @@ func NewImageStorage(imgDir string, convertSmallOpts, convertMediumOpts []string
 			}
 		}(s)
 	}
+	
 	return s, nil
 }
 
@@ -88,6 +85,7 @@ func (s *ImageStorage) loadImages() {
 	s.Lock()
 	defer s.Unlock()
 
+	s.needSync = true
 	s.images = map[string]image{}
 
 	s.db.Find(&images)
