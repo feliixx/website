@@ -61,7 +61,17 @@ func (s *ImageStorage) backupToGoogleDrive() error {
 			log.Printf("file %s uploaded to drive", name)
 		}
 	}
-	return s.driveInfo.uploadDbBackup()
+	
+	err = s.driveInfo.uploadDbBackup()
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	s.needSync = false
+	s.Unlock()
+
+	return nil
 }
 
 func uploadImageToDrive(service *drive.Service, name, baseDir, driveParentID string) error {
