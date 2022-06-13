@@ -7,6 +7,15 @@
     <meta name="description"
         content="Some pictures I took while freediving in New Caledonia and French Polynesia - &copy; Adrien Petel">
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.0/css/pico.min.css">
+    <script type="text/javascript">
+
+        function showDetail(imgName) {
+            if (window.matchMedia('(max-width: 800px)').matches) {
+                return
+            }
+            window.location.href = `/detail?name=${imgName}`
+        }
+    </script>
 </head>
 
 <style>
@@ -43,7 +52,7 @@
 
     {{ range $img := .Images }}
     <img src="/images/{{$img.Name}}" width={{$img.WidthSmall}} height={{$img.HeightSmall}} alt="{{$img.Name}}"
-        onclick="window.location.href='/detail?name={{$img.Name}}'" title={{$img.Description}}>
+        onclick="showDetail('{{$img.Name}}')" title={{$img.Description}}>
     {{end}}
 
     <footer>
