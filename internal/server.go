@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -26,8 +25,6 @@ var (
 )
 
 func NewServer(storage *ImageStorage, creds map[string]string) *http.Server {
-
-	rand.Seed(time.Now().Unix())
 
 	r := chi.NewRouter()
 

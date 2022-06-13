@@ -158,6 +158,7 @@ func (s *ImageStorage) galleryHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	rand.Seed(int64(time.Now().Day()))
 	rand.Shuffle(len(imgs), func(i, j int) {
 		imgs[i], imgs[j] = imgs[j], imgs[i]
 	})
