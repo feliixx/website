@@ -73,7 +73,7 @@ func NewImageStorage(imgDir string, convertSmallOpts, convertMediumOpts []string
 			}
 		}(s)
 	}
-	
+
 	return s, nil
 }
 
@@ -96,6 +96,7 @@ func (s *ImageStorage) loadImages() {
 		}
 	}
 	s.tags = maps.Keys(tags)
+	slices.Sort(s.tags)
 }
 
 func (s *ImageStorage) initResizedDir() {
@@ -134,26 +135,27 @@ func (s *ImageStorage) galleryHandler(w http.ResponseWriter, r *http.Request) {
 
 	params := r.URL.Query()
 	tag := params.Get("tag")
-
-	var imgs []image
-
-	if params.Get("showAll") == "true" {
-		imgs = maps.Values(s.images)
-	} else {
-
-		imgs = make([]image, 0, len(s.images))
-		for _, img := range s.images {
-
-			if !img.Show {
-				continue
-			}
-
-			if tag != "" && !strings.Contains(img.Tags, tag) {
-				continue
-			}
-
-			imgs = append(imgs, img)
+	
+	if tag == "" {
+		if len(s.tags) == 0 {
+			tag = "all"
+		} else {
+			tag = s.tags[0]
 		}
+	}
+
+	imgs := make([]image, 0, len(s.images))
+	for _, img := range s.images {
+
+		if !img.Show {
+			continue
+		}
+
+		if tag != "all" && !strings.Contains(img.Tags, tag) {
+			continue
+		}
+
+		imgs = append(imgs, img)
 	}
 
 	rand.Seed(int64(time.Now().Day()))

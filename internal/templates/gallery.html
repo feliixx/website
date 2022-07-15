@@ -44,7 +44,7 @@
                 {{ range $tag := .Tags }}
                 <li><a href="/?tag={{$tag}}" {{ if ne $tag $selected }} class="secondary" {{end}}>{{$tag}}</a></li>
                 {{end}}
-                <li><a href="/" {{ if ne ( len .SelectedTag) 0 }} class="secondary" {{end}}>All</a></li>
+                <li><a href="/?tag=all" {{ if ne ( len .SelectedTag) 0 }} class="secondary" {{end}}>All</a></li>
             </ul>
             <ul></ul>
         </nav>
