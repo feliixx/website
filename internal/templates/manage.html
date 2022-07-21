@@ -29,6 +29,11 @@
 
         function uploadImage(file) {
 
+            const uploadBtn = document.getElementById("upload_button")
+            uploadBtn.textContent = "Uploading..."
+            uploadBtn.setAttribute("aria-busy", true)
+
+
             const select = document.getElementById("orientation_select")
             const orientation = select.options[select.selectedIndex].text
 
