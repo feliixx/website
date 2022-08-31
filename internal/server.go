@@ -33,6 +33,7 @@ func NewServer(storage *ImageStorage, creds map[string]string) *http.Server {
 	r.Get("/", storage.galleryHandler)
 	r.Get("/health", healthHandler)
 	r.Get("/detail", storage.detailHandler)
+	r.Get("/sitemap.txt", storage.sitemapHandler)
 	r.Get("/kaleidoscope", kaleidoscopeHandler)
 	r.Get("/images/{name}", storage.getImageHandler)
 	r.Mount("/images", authImageRouter(storage, creds))

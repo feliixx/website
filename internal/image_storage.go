@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -135,7 +136,7 @@ func (s *ImageStorage) galleryHandler(w http.ResponseWriter, r *http.Request) {
 
 	params := r.URL.Query()
 	tag := params.Get("tag")
-	
+
 	if tag == "" {
 		if len(s.tags) == 0 {
 			tag = "all"
@@ -212,4 +213,19 @@ func (s *ImageStorage) manageHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func (s *ImageStorage) sitemapHandler(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
+	b := bytes.NewBuffer(make([]byte, 0, 128*len(s.images)))
+
+	for _, image := range s.images {
+		b.WriteString(r.Referer())
+		b.WriteString("detail?name=")
+		b.WriteString(image.Name)
+		b.WriteByte('\n')
+	}
+	w.Write(b.Bytes())
 }
