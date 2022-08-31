@@ -112,7 +112,6 @@ func getDriveDirID(service *drive.Service, dirName string) (dirID string, err er
 }
 
 type GoogleDriveInfo struct {
-	syncOnStartup bool
 	dir           string
 	token         *oauth2.Token
 	config        *oauth2.Config

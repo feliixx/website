@@ -80,16 +80,17 @@ func NewImageStorage(imgDir string, convertSmallOpts, convertMediumOpts []string
 
 func (s *ImageStorage) loadImages() {
 
-	var images []image
-	tags := map[string]bool{}
-
 	s.Lock()
 	defer s.Unlock()
 
 	s.needSync = true
 	s.images = map[string]image{}
 
+	tags := map[string]bool{}
+
+	var images []image
 	s.db.Find(&images)
+
 	for _, image := range images {
 		s.images[image.Name] = image
 		for _, tag := range strings.Split(image.Tags, ",") {
