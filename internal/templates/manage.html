@@ -27,12 +27,27 @@
             })
         })
 
+        function disableButtons(doDisable) {
+            const uploadBtn = document.getElementById("upload_button")
+            if (doDisable) {
+                uploadBtn.textContent = "Uploading..."
+            } else {
+                uploadBtn.textContent = "upload image"
+            }
+            uploadBtn.setAttribute("aria-busy", doDisable)
+
+            const fileInput = document.getElementById("img_chooser")
+            fileInput.disabled = doDisable
+
+            const buttons = document.querySelectorAll("button");
+            for (const button of buttons) {
+                button.disabled = doDisable
+            }
+        }
+
         function uploadImage(file) {
 
-            const uploadBtn = document.getElementById("upload_button")
-            uploadBtn.textContent = "Uploading..."
-            uploadBtn.setAttribute("aria-busy", true)
-
+            disableButtons(true)
 
             const select = document.getElementById("orientation_select")
             const orientation = select.options[select.selectedIndex].text
@@ -47,6 +62,7 @@
                         window.location.href = "/manage"
                     } else {
                         response.text().then(text => {
+                            disableButtons(false)
                             alert(`create image failed: Error ${response.status} (${response.statusText}): ${text}`)
                         })
                     }
@@ -103,7 +119,7 @@
         function toggleEditModal(event) {
             event.preventDefault()
 
-            const modal = document.getElementById("modal-edit")
+            const modal = document.getElementById("modal_edit")
             if (modal.hasAttribute("open") && modal.getAttribute("open") != "false") {
                 closeEditModal(modal)
             } else {
@@ -218,7 +234,7 @@
         </table>
     </main>
 
-    <dialog id="modal-edit">
+    <dialog id="modal_edit">
         <article>
             <h3>Edit image info</h3>
             <form>
