@@ -28,7 +28,6 @@ type image struct {
 	// these params can be modified by the user
 	// from front-end
 	Orientation string
-	Show        bool
 	Tags        string
 	Description string
 	Alt         string
@@ -93,7 +92,6 @@ func (s *ImageStorage) createImageHandler(w http.ResponseWriter, r *http.Request
 		Name:         h.Filename,
 		Orientation:  r.FormValue("orientation"),
 		CreationDate: time.Now(),
-		Show:         true,
 		Alt:          strings.ReplaceAll(strings.TrimSuffix(h.Filename, ".jpg"), "_", " "),
 	}
 	err = s.generateSmallerVersions(&img)
@@ -128,11 +126,6 @@ func (s *ImageStorage) updateImageHandler(w http.ResponseWriter, r *http.Request
 		s.generateSmallerVersions(&img)
 	}
 
-	if r.FormValue("show") == "true" {
-		img.Show = true
-	} else {
-		img.Show = false
-	}
 	img.Tags = r.FormValue("tags")
 	img.Description = r.FormValue("description")
 	img.Alt = r.FormValue("alt")

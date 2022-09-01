@@ -93,12 +93,19 @@ func (s *ImageStorage) loadImages() {
 
 	for _, image := range images {
 		s.images[image.Name] = image
+
+		if strings.TrimSpace(image.Tags) == "" {
+			continue
+		}
+
 		for _, tag := range strings.Split(image.Tags, ",") {
 			tags[strings.TrimSpace(tag)] = true
 		}
 	}
+
 	s.tags = maps.Keys(tags)
 	slices.Sort(s.tags)
+	s.tags = append(s.tags, "all")
 }
 
 func (s *ImageStorage) initResizedDir() {
@@ -139,19 +146,11 @@ func (s *ImageStorage) galleryHandler(w http.ResponseWriter, r *http.Request) {
 	tag := params.Get("tag")
 
 	if tag == "" {
-		if len(s.tags) == 0 {
-			tag = "all"
-		} else {
-			tag = s.tags[0]
-		}
+		tag = s.tags[0]
 	}
 
 	imgs := make([]image, 0, len(s.images))
 	for _, img := range s.images {
-
-		if !img.Show {
-			continue
-		}
 
 		if tag != "all" && !strings.Contains(img.Tags, tag) {
 			continue
