@@ -74,8 +74,9 @@
             const formData = new FormData()
             formData.append("orientation", document.getElementById("paysage").checked ? "paysage" : "portrait")
             formData.append("show", document.getElementById("show").checked ? "true" : "false")
-            formData.append("tags", document.getElementById("tags").value)
             formData.append("description", document.getElementById("description").value)
+            formData.append("alt", document.getElementById("alt").value)
+            formData.append("tags", document.getElementById("tags").value)
 
             const name = document.getElementById("name").value
 
@@ -147,6 +148,7 @@
             document.getElementById("paysage").checked = getVal(row, "orientation") == "paysage"
             document.getElementById("portrait").checked = getVal(row, "orientation") == "portrait"
             document.getElementById("description").value = getVal(row, "description")
+            document.getElementById("alt").value = getVal(row, "alt")
             document.getElementById("tags").value = getVal(row, "tags")
         }
 
@@ -184,19 +186,28 @@
     </script>
 </head>
 
+<style>
+    .fixed-cell-size {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
 <body>
     <main class="container-fluid">
         <div class="container">
             <h3>Upload a new image</h3>
             <div class="grid">
-                <input id="img_chooser" type="file" width="300px" accept=".jpg, .jpeg" />
+                <input id="img_chooser" type="file" width="300px" accept=".jpg" />
                 <select id="orientation_select">
                     <option>portrait</option>
                     <option>paysage</option>
                 </select>
                 <button id="upload_button">upload image</button>
             </div>
-            <small>Only [ .jpg | .jpeg ] files are allowed</small>
+            <small>Only <strong>.jpg</strong> files are allowed</small>
             <img id="img_preview" width="200px">
         </div>
         <section></section>
@@ -204,11 +215,12 @@
         <table>
             <tr>
                 <th></th>
-                <th>Name</th>
+                <th class="fixed-cell-size">Name</th>
                 <th>Date</th>
                 <th>Show</th>
                 <th>Orientation</th>
-                <th>Description</th>
+                <th class="fixed-cell-size">Description</th>
+                <th>Alt</th>
                 <th>Tags</th>
                 <th></th>
                 <th></th>
@@ -217,11 +229,12 @@
             {{ range $img := . }}
             <tr>
                 <td><img src="/images/{{$img.Name}}" width="75px" height="75px"></td>
-                <td class="name">{{$img.Name}}</td>
+                <td class="name fixed-cell-size">{{$img.Name}}</td>
                 <td>{{$img.CreationDate.Format "02 Jan 2006"}}</td>
                 <td class="show">{{ if $img.Show }}&#10004;{{end}}</td>
                 <td class="orientation">{{$img.Orientation}}</td>
-                <td class="description">{{$img.Description}}</td>
+                <td class="description fixed-cell-size">{{$img.Description}}</td>
+                <td class="alt">{{$img.Alt}}</td>
                 <td class="tags">{{$img.Tags}}</td>
                 <td>
                     <button onClick="toggleEditModal(event)">Edit</button>
@@ -259,6 +272,8 @@
                 </div>
                 <label for="description">Description</label>
                 <textarea id="description" rows=5 cols=60></textarea>
+                <label for="alt">Alt</label>
+                <input type="text" id="alt">
                 <label for="tags">Tags</label>
                 <input type="text" id="tags">
                 <small>list of tags separated by a comma ( <strong>,</strong> )</small>

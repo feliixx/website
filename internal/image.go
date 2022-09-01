@@ -31,6 +31,7 @@ type image struct {
 	Show        bool
 	Tags        string
 	Description string
+	Alt         string
 }
 
 func (s *ImageStorage) getImageHandler(w http.ResponseWriter, r *http.Request) {
@@ -93,6 +94,7 @@ func (s *ImageStorage) createImageHandler(w http.ResponseWriter, r *http.Request
 		Orientation:  r.FormValue("orientation"),
 		CreationDate: time.Now(),
 		Show:         true,
+		Alt:          strings.ReplaceAll(strings.TrimSuffix(h.Filename, ".jpg"), "_", " "),
 	}
 	err = s.generateSmallerVersions(&img)
 	if err != nil {
@@ -133,6 +135,7 @@ func (s *ImageStorage) updateImageHandler(w http.ResponseWriter, r *http.Request
 	}
 	img.Tags = r.FormValue("tags")
 	img.Description = r.FormValue("description")
+	img.Alt = r.FormValue("alt")
 
 	s.db.Save(&img)
 

@@ -51,7 +51,7 @@
     </div>
 
     {{ range $img := .Images }}
-    <img src="/images/{{$img.Name}}" width={{$img.WidthSmall}} height={{$img.HeightSmall}} alt="{{$img.Name}}"
+    <img src="/images/{{$img.Name}}" width={{$img.WidthSmall}} height={{$img.HeightSmall}} alt="{{$img.Alt}}"
         onclick="showDetail('{{$img.Name}}')" title={{$img.Description}}>
     {{end}}
 

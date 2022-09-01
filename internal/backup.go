@@ -61,7 +61,7 @@ func (s *ImageStorage) backupToGoogleDrive() error {
 			log.Printf("file %s uploaded to drive", name)
 		}
 	}
-	
+
 	err = s.driveInfo.uploadDbBackup()
 	if err != nil {
 		return err
@@ -112,9 +112,9 @@ func getDriveDirID(service *drive.Service, dirName string) (dirID string, err er
 }
 
 type GoogleDriveInfo struct {
-	dir           string
-	token         *oauth2.Token
-	config        *oauth2.Config
+	dir    string
+	token  *oauth2.Token
+	config *oauth2.Config
 }
 
 func NewGoogleDriveInfo(dir string, token, credentials any) *GoogleDriveInfo {
