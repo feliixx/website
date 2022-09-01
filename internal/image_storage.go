@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"sync"
@@ -219,13 +220,25 @@ func (s *ImageStorage) sitemapHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
-	b := bytes.NewBuffer(make([]byte, 0, 128*len(s.images)))
+	baseUrl := fmt.Sprintf("https://%s/", r.Host)
 
-	for _, image := range s.images {
-		b.WriteString(r.Referer())
-		b.WriteString("detail?name=")
-		b.WriteString(image.Name)
+	b := bytes.NewBuffer(make([]byte, 0, 128*len(s.images)))
+	b.WriteString(baseUrl)
+	b.WriteByte('\n')
+
+	for _, tag := range s.tags {
+		b.WriteString(baseUrl)
+		b.WriteString("?tag=")
+		b.WriteString(url.QueryEscape(tag))
 		b.WriteByte('\n')
 	}
+
+	for _, image := range s.images {
+		b.WriteString(baseUrl)
+		b.WriteString("detail?name=")
+		b.WriteString(url.QueryEscape(image.Name))
+		b.WriteByte('\n')
+	}
+
 	w.Write(b.Bytes())
 }
