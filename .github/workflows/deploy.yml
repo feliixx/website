@@ -45,9 +45,9 @@ jobs:
     - name: Deploy binary on server
       run: |
         ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} sudo systemctl stop $APP_NAME
-        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} mv /home/$APP_NAME/$APP_NAME /home/$APP_NAME/${APP_NAME}_old || true
-        scp $APP_NAME $APP_NAME@${{ secrets.HOST_PRODUCTION }}:/home/$APP_NAME
-        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} sudo setcap CAP_NET_BIND_SERVICE=+ep $APP_NAME
+        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} mv /opt/$APP_NAME/$APP_NAME /opt/$APP_NAME/${APP_NAME}_old || true
+        scp $APP_NAME $APP_NAME@${{ secrets.HOST_PRODUCTION }}:/opt/$APP_NAME
+        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} sudo setcap CAP_NET_BIND_SERVICE=+ep /opt/$APP_NAME/${APP_NAME}
         ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} sudo systemctl restart $APP_NAME
     # ping the server until we're sure it's UP
     # script is an adaptation of this question: https://unix.stackexchange.com/questions/82598/
@@ -63,5 +63,5 @@ jobs:
       if: failure() && steps.ping_new_instance.outcome == 'failure'
       run: |
         ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} sudo systemctl stop $APP_NAME
-        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} mv /home/$APP_NAME/${APP_NAME}_old /home/$APP_NAME/$APP_NAME || true
+        ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} mv /opt/$APP_NAME/${APP_NAME}_old /opt/$APP_NAME/$APP_NAME || true
         ssh $APP_NAME@${{ secrets.HOST_PRODUCTION }} sudo systemctl restart $APP_NAME
