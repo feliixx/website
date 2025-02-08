@@ -13,18 +13,18 @@ env:
 jobs:
 
   deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     environment: production
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5
       with:
-        go-version: '1.18'
+        go-version: '1.23'
 
     # build binary without debug info to reduce its size
     - name: build binary 
@@ -32,7 +32,7 @@ jobs:
 
     - name: Register SSH key
       continue-on-error: true
-      uses: webfactory/ssh-agent@v0.5.3
+      uses: webfactory/ssh-agent@v0.9.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_PRODUCTION }}
 

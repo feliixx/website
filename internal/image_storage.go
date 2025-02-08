@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
 
-	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -104,8 +104,7 @@ func (s *ImageStorage) loadImages() {
 		}
 	}
 
-	s.tags = maps.Keys(tags)
-	slices.Sort(s.tags)
+	s.tags = slices.Collect(maps.Keys(tags))
 	s.tags = append(s.tags, "all")
 }
 
@@ -205,9 +204,9 @@ func (s *ImageStorage) manageHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	imgs := maps.Values(s.images)
-	slices.SortFunc(imgs, func(a, b image) bool {
-		return a.CreationDate.After(b.CreationDate)
+	imgs := slices.Collect(maps.Values(s.images))
+	slices.SortFunc(imgs, func(a, b image) int {
+		return int(a.CreationDate.Unix() - b.CreationDate.Unix())
 	})
 
 	err := manageTemplate.Execute(w, imgs)
